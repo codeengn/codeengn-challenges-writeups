@@ -1,0 +1,27 @@
+/*
+	시저 암호 사용했을 것으로 추측.
+	모든 경우에 대해서 생각해보고 의미 있는 단어를 찾는다.
+*/
+
+#include <stdio.h>
+
+int main(void) {
+	int i, j = 0;
+	int length = 0;
+	char text[20];
+
+	printf("Input string.\n>");
+	scanf("%19s", text);
+
+	length = strlen(text);
+	for(i = 0; i < 26; i++) {
+		for(j = 0; j < length; j++) {
+			text[j] = text[j] + 1;
+			if(text[j] > 122)
+				text[j] = text[j] - 26;
+		}
+		printf("%s\n", text);
+	}
+
+	return 0;
+}

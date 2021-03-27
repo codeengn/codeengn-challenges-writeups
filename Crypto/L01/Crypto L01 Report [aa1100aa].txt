@@ -1,0 +1,47 @@
+코드엔진 리포트
+
+eqbpntwemza 
+원래의 문자열로 변환 후 인증하시오 
+
+알파벳 밀어내기가 아닐까 하고 코드를 짜서 해봤다.
+
+C 코드 : 
+	char PlainText[]="eqbpntwemza";
+	for (int i=1; i <= 25; i++)
+	{
+		for (int j=0; j < strlen(PlainText); j++)
+		{
+			PlainText[j] = ((PlainText[j]==122) ? 97 : PlainText[j]+1);
+		}
+		printf("%s\n", PlainText);
+	}
+
+
+출력 결과 : 
+frcqouxfnab
+gsdrpvygobc
+htesqwzhpcd
+iuftrxaiqde
+jvgusybjref
+kwhvtzcksfg
+lxiwuadltgh
+myjxvbemuhi
+nzkywcfnvij
+oalzxdgowjk
+pbmayehpxkl
+qcnbzfiqylm
+rdocagjrzmn
+sepdbhksano
+tfqeciltbop
+ugrfdjmucpq
+vhsgeknvdqr
+withflowers  << 읽을수있음
+xjuigmpxfst
+ykvjhnqygtu
+zlwkiorzhuv
+amxljpsaivw
+bnymkqtbjwx
+coznlruckxy
+dpaomsvdlyz
+
+답 : withflowers
