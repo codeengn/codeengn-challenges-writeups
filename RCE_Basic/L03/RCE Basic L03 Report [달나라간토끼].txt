@@ -1,0 +1,158 @@
+
+무조건 성공하게 하려면 .... 비교하는 부분을 NOP 처리 해버리면 쉽겠고...
+아니면... 
+
+004028C7  |.  8BF8           MOV EDI,EAX
+004028C9  |.  8D4D A8        LEA ECX,[EBP-58]
+004028CC  |.  F7DF           NEG EDI
+004028CE  |.  1BFF           SBB EDI,EDI
+004028D0  |.  47             INC EDI
+004028D1  |.  F7DF           NEG EDI
+
+이쪽 술식을... 가지고 요리를 하면 되것 같습니다만은..
+비베에 대한 프로시져를 모르는관계상 ... 여기 있는 애들 분석하려면 
+프로시져에 대한 매개변수 스타일을 알아서.. CALL 하기전에 들어가는
+변수의 폼을 알아내야 할것 같습니다.... 어쨋든 
+문제의 답은 MSVBVM50.__vbaStrCmp
+
+
+CPU Disasm
+Address   Hex dump          Command                                        Comments
+004028A7  |. /7D 11          JGE SHORT 004028BA
+004028A9  |. |68 A0000000    PUSH 0A0
+004028AE  |. |68 F41D4000    PUSH 00401DF4
+004028B3  |. |57             PUSH EDI
+004028B4  |. |50             PUSH EAX
+004028B5  |. |E8 84E8FFFF    CALL <JMP.&MSVBVM50.__vbaHresultCheckObj>     ; Jump to MSVBVM50.__vbaHresultCheckObj
+004028BA  |> \FF75 A8        PUSH DWORD PTR SS:[EBP-58]
+004028BD  |.  68 DC1D4000    PUSH 00401DDC                                 ; UNICODE "2G83G35Hs2"          <---- 이녀석이 패스워드고...
+004028C2  |.  E8 83E8FFFF    CALL <JMP.&MSVBVM50.__vbaStrCmp>              ; Jump to MSVBVM50.__vbaStrCmp  <---- 이녀석이 정답이고...
+004028C7  |.  8BF8           MOV EDI,EAX
+004028C9  |.  8D4D A8        LEA ECX,[EBP-58]
+004028CC  |.  F7DF           NEG EDI
+004028CE  |.  1BFF           SBB EDI,EDI
+004028D0  |.  47             INC EDI
+004028D1  |.  F7DF           NEG EDI
+004028D3  |.  E8 60E8FFFF    CALL <JMP.&MSVBVM50.__vbaFreeStr>             ; Jump to MSVBVM50.__vbaFreeStr
+004028D8  |.  8D4D A4        LEA ECX,[EBP-5C]
+004028DB  |.  E8 52E8FFFF    CALL <JMP.&MSVBVM50.__vbaFreeObj>             ; Jump to MSVBVM50.__vbaFreeObj
+004028E0  |.  66:3BFE        CMP DI,SI
+004028E3  |.  0F84 F3000000  JE 004029DC   <---- 결정적으로 이녀석이 ... 무엇인가 비교해서 틀렷다면 점프를 하는 곳인것 같은데... 이녀석주소는 아래쪽에                                       
+004028E9  |.  6A 08          PUSH 8
+004028EB  |.  8D95 74FFFFFF  LEA EDX,[EBP-8C]
+004028F1  |.  5E             POP ESI
+004028F2  |.  8D4D AC        LEA ECX,[EBP-54]
+004028F5  |.  C785 7CFFFFFF  MOV DWORD PTR SS:[EBP-84],00401E08            ; UNICODE "Danke, das Passwort ist richtig !" <--- 이녀석이 패스워드 성공시 나오는 문자고
+004028FF  |.  89B5 74FFFFFF  MOV DWORD PTR SS:[EBP-8C],ESI
+00402905  |.  E8 22E8FFFF    CALL <JMP.&MSVBVM50.__vbaVarCopy>             ; Jump to MSVBVM50.__vbaVarCopy
+0040290A  |.  6A 03          PUSH 3
+0040290C  |.  8D95 74FFFFFF  LEA EDX,[EBP-8C]
+00402912  |.  5B             POP EBX
+00402913  |.  8D4D DC        LEA ECX,[EBP-24]
+00402916  |.  C785 7CFFFFFF  MOV DWORD PTR SS:[EBP-84],31
+00402920  |.  899D 74FFFFFF  MOV DWORD PTR SS:[EBP-8C],EBX
+00402926  |.  E8 FBE7FFFF    CALL <JMP.&MSVBVM50.__vbaVarMove>              ; Jump to MSVBVM50.__vbaVarMove
+0040292B  |.  8D95 74FFFFFF  LEA EDX,[EBP-8C]
+00402931  |.  8D4D CC        LEA ECX,[EBP-34]
+00402934  |.  C785 7CFFFFFF  MOV DWORD PTR SS:[EBP-84],00401E50
+0040293E  |.  89B5 74FFFFFF  MOV DWORD PTR SS:[EBP-8C],ESI
+00402944  |.  E8 E3E7FFFF    CALL <JMP.&MSVBVM50.__vbaVarCopy>              ; Jump to MSVBVM50.__vbaVarCopy
+00402949  |.  6A 0A          PUSH 0A
+0040294B  |.  8D45 84        LEA EAX,[EBP-7C]
+0040294E  |.  5E             POP ESI
+0040294F  |.  BF 04000280    MOV EDI,80020004
+00402954  |.  50             PUSH EAX
+00402955  |.  8D45 94        LEA EAX,[EBP-6C]
+00402958  |.  50             PUSH EAX
+00402959  |.  8D45 CC        LEA EAX,[EBP-34]
+0040295C  |.  50             PUSH EAX
+0040295D  |.  8D45 DC        LEA EAX,[EBP-24]
+00402960  |.  50             PUSH EAX
+00402961  |.  897D 8C        MOV DWORD PTR SS:[EBP-74],EDI
+00402964  |.  8975 84        MOV DWORD PTR SS:[EBP-7C],ESI
+00402967  |.  897D 9C        MOV DWORD PTR SS:[EBP-64],EDI
+0040296A  |.  8975 94        MOV DWORD PTR SS:[EBP-6C],ESI
+0040296D  |.  E8 A8E7FFFF    CALL <JMP.&MSVBVM50.__vbaI4Var>                ; Jump to MSVBVM50.__vbaI4Var
+00402972  |.  50             PUSH EAX
+00402973  |.  8D45 AC        LEA EAX,[EBP-54]
+00402976  |.  50             PUSH EAX
+00402977  |.  E8 A4E7FFFF    CALL <JMP.&MSVBVM50.#595>                      ; Jump to MSVBVM50.rtcMsgBox  < --- 여기서 성공시 메세지 남발
+
+
+
+비베는 호출하기전에 메세지 박스 인자가 많이 들어가나부네욤...
+아직 API를 안찾아봤음
+
+CPU Disasm
+Address   Hex dump          Command                                        Comments
+004029DC  |> \6A 03         PUSH 3
+004029DE  |.  BF 04000280   MOV EDI,80020004
+004029E3  |.  5B            POP EBX
+004029E4  |.  6A 0A         PUSH 0A
+004029E6  |.  5E            POP ESI
+004029E7  |>  FF75 08       PUSH DWORD PTR SS:[EBP+8]
+004029EA  |.  FF95 3CFFFFFF CALL DWORD PTR SS:[EBP-0C4]
+004029F0  |.  50            PUSH EAX
+004029F1  |.  8D45 A4       LEA EAX,[EBP-5C]
+004029F4  |.  50            PUSH EAX
+004029F5  |.  E8 4AE7FFFF   CALL <JMP.&MSVBVM50.__vbaObjSet>               ; Jump to MSVBVM50.__vbaObjSet
+004029FA  |.  8B08          MOV ECX,DWORD PTR DS:[EAX]
+004029FC  |.  8D55 A8       LEA EDX,[EBP-58]
+004029FF  |.  52            PUSH EDX
+00402A00  |.  50            PUSH EAX
+00402A01  |.  8985 50FFFFFF MOV DWORD PTR SS:[EBP-0B0],EAX
+00402A07  |.  FF91 A0000000 CALL DWORD PTR DS:[ECX+0A0]
+00402A0D  |.  85C0          TEST EAX,EAX
+00402A0F  |.  7D 16         JGE SHORT 00402A27
+00402A11  |.  68 A0000000   PUSH 0A0
+00402A16  |.  68 F41D4000   PUSH 00401DF4
+00402A1B  |.  FFB5 50FFFFFF PUSH DWORD PTR SS:[EBP-0B0]
+00402A21  |.  50            PUSH EAX
+00402A22  |.  E8 17E7FFFF   CALL <JMP.&MSVBVM50.__vbaHresultCheckObj>      ; Jump to MSVBVM50.__vbaHresultCheckObj
+00402A27  |>  FF75 A8       PUSH DWORD PTR SS:[EBP-58]
+00402A2A  |.  68 DC1D4000   PUSH 00401DDC                                  ; UNICODE "2G83G35Hs2"
+00402A2F  |.  E8 16E7FFFF   CALL <JMP.&MSVBVM50.__vbaStrCmp>               ; Jump to MSVBVM50.__vbaStrCmp  <---- 음 여기서 왜 한번더 비교를 하지..
+00402A34  |.  F7D8          NEG EAX
+00402A36  |.  1BC0          SBB EAX,EAX
+00402A38  |.  8D4D A8       LEA ECX,[EBP-58]
+00402A3B  |.  F7D8          NEG EAX
+00402A3D  |.  F7D8          NEG EAX
+00402A3F  |.  8985 48FFFFFF MOV DWORD PTR SS:[EBP-0B8],EAX
+00402A45  |.  E8 EEE6FFFF   CALL <JMP.&MSVBVM50.__vbaFreeStr>              ; Jump to MSVBVM50.__vbaFreeStr
+00402A4A  |.  8D4D A4       LEA ECX,[EBP-5C]
+00402A4D  |.  E8 E0E6FFFF   CALL <JMP.&MSVBVM50.__vbaFreeObj>              ; Jump to MSVBVM50.__vbaFreeObj
+00402A52  |.  66:83BD 48FFF CMP WORD PTR SS:[EBP-0B8],0
+00402A5A  |.  0F84 E7000000 JE 00402B47
+00402A60  |.  8D95 74FFFFFF LEA EDX,[EBP-8C]
+00402A66  |.  8D4D AC       LEA ECX,[EBP-54]
+00402A69  |.  C785 7CFFFFFF MOV DWORD PTR SS:[EBP-84],00401E70             ; UNICODE "Error ! Das Passwort ist falsch !"
+00402A73  |.  C785 74FFFFFF MOV DWORD PTR SS:[EBP-8C],8
+00402A7D  |.  E8 AAE6FFFF   CALL <JMP.&MSVBVM50.__vbaVarCopy>              ; Jump to MSVBVM50.__vbaVarCopy
+00402A82  |.  8D95 74FFFFFF LEA EDX,[EBP-8C]
+00402A88  |.  8D4D DC       LEA ECX,[EBP-24]
+00402A8B  |.  C785 7CFFFFFF MOV DWORD PTR SS:[EBP-84],10
+00402A95  |.  899D 74FFFFFF MOV DWORD PTR SS:[EBP-8C],EBX
+00402A9B  |.  E8 86E6FFFF   CALL <JMP.&MSVBVM50.__vbaVarMove>              ; Jump to MSVBVM50.__vbaVarMove
+00402AA0  |.  8D95 74FFFFFF LEA EDX,[EBP-8C]
+00402AA6  |.  8D4D CC       LEA ECX,[EBP-34]
+00402AA9  |.  C785 7CFFFFFF MOV DWORD PTR SS:[EBP-84],00401EB8             ; UNICODE "PASSWORT FALSCH !"
+00402AB3  |.  C785 74FFFFFF MOV DWORD PTR SS:[EBP-8C],8
+00402ABD  |.  E8 6AE6FFFF   CALL <JMP.&MSVBVM50.__vbaVarCopy>              ; Jump to MSVBVM50.__vbaVarCopy
+00402AC2  |.  8D45 84       LEA EAX,[EBP-7C]
+00402AC5  |.  897D 8C       MOV DWORD PTR SS:[EBP-74],EDI
+00402AC8  |.  50            PUSH EAX
+00402AC9  |.  8D45 94       LEA EAX,[EBP-6C]
+00402ACC  |.  50            PUSH EAX
+00402ACD  |.  8D45 CC       LEA EAX,[EBP-34]
+00402AD0  |.  50            PUSH EAX
+00402AD1  |.  8D45 DC       LEA EAX,[EBP-24]
+00402AD4  |.  50            PUSH EAX
+00402AD5  |.  8975 84       MOV DWORD PTR SS:[EBP-7C],ESI
+00402AD8  |.  897D 9C       MOV DWORD PTR SS:[EBP-64],EDI
+00402ADB  |.  8975 94       MOV DWORD PTR SS:[EBP-6C],ESI
+00402ADE  |.  E8 37E6FFFF   CALL <JMP.&MSVBVM50.__vbaI4Var>                ; Jump to MSVBVM50.__vbaI4Var
+00402AE3  |.  50            PUSH EAX
+00402AE4  |.  8D45 AC       LEA EAX,[EBP-54]
+00402AE7  |.  50            PUSH EAX
+00402AE8  |.  E8 33E6FFFF   CALL <JMP.&MSVBVM50.#595>                      ; Jump to MSVBVM50.rtcMsgBox
+
