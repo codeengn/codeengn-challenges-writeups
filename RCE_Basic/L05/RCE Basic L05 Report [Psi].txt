@@ -1,0 +1,101 @@
+일단 PEid 로 확인한 결과 UPX 로 패킹 되어 있어서 언팩한 후 출발하였다. 
+string 검색을 통해 아래와 같은 부분을 확인할 수 있었다. 
+
+00440F3B  |.  8D55 FC       LEA EDX,DWORD PTR SS:[EBP-4]
+00440F3E  |.  8B83 C8020000 MOV EAX,DWORD PTR DS:[EBX+2C8]
+00440F44  |.  E8 D7FEFDFF   CALL a.00420E20
+00440F49  |.  8B45 FC       MOV EAX,DWORD PTR SS:[EBP-4]
+00440F4C  |.  BA 2C104400   MOV EDX,a.0044102C                       ;  ASCII "GFX-754-IER-954"
+00440F51  |.  E8 D62BFCFF   CALL a.00403B2C
+00440F56  |.  75 1A         JNZ SHORT a.00440F72
+00440F58  |.  6A 00         PUSH 0
+00440F5A  |.  B9 3C104400   MOV ECX,a.0044103C                       ;  ASCII "CrackMe cracked successfully"
+00440F5F  |.  BA 5C104400   MOV EDX,a.0044105C                       ;  ASCII "Congrats! You cracked this CrackMe!"
+00440F64  |.  A1 442C4400   MOV EAX,DWORD PTR DS:[442C44]
+00440F69  |.  8B00          MOV EAX,DWORD PTR DS:[EAX]
+00440F6B  |.  E8 F8C0FFFF   CALL a.0043D068
+00440F70  |.  EB 32         JMP SHORT a.00440FA4
+00440F72  |>  6A 00         PUSH 0
+
+아마도, 내 생각에 CALL a.00403B2C 부분이 입력받은 문자열과 키를 비교하는 부분인 것 같아 살펴보았다. 
+
+00403B2C  /$  53            PUSH EBX
+00403B2D  |.  56            PUSH ESI
+00403B2E  |.  57            PUSH EDI
+00403B2F  |.  89C6          MOV ESI,EAX ; ESI 에 우리가 입력한 문자열의 주소
+00403B31  |.  89D7          MOV EDI,EDX ; EDI 에 비교할 시리얼의 주소
+00403B33  |.  39D0          CMP EAX,EDX ; 같으면 안되므로 만일 무슨 연유에서 같다면 프로그램 끝으로 점프 
+00403B35  |.  0F84 8F000000 JE a.00403BCA ; 만일 점프되면 caller 에서 jnz 로 비교하므로 오류 메시지 
+00403B3B  |.  85F6          TEST ESI,ESI
+00403B3D  |.  74 68         JE SHORT a.00403BA7
+00403B3F  |.  85FF          TEST EDI,EDI
+00403B41  |.  74 6B         JE SHORT a.00403BAE
+00403B43  |.  8B46 FC       MOV EAX,DWORD PTR DS:[ESI-4]
+00403B46  |.  8B57 FC       MOV EDX,DWORD PTR DS:[EDI-4]
+00403B49  |.  29D0          SUB EAX,EDX
+00403B4B  |.  77 02         JA SHORT a.00403B4F
+00403B4D  |.  01C2          ADD EDX,EAX
+00403B4F  |>  52            PUSH EDX
+00403B50  |.  C1EA 02       SHR EDX,2
+00403B53  |.  74 26         JE SHORT a.00403B7B
+00403B55  |>  8B0E          /MOV ECX,DWORD PTR DS:[ESI] ; 아래는 문자열의 문자를 하나씩 비교한다. 
+00403B57  |.  8B1F          |MOV EBX,DWORD PTR DS:[EDI]
+00403B59  |.  39D9          |CMP ECX,EBX 
+00403B5B  |.  75 58         |JNZ SHORT a.00403BB5 ; 다르다면 루프 탈출
+00403B5D  |.  4A            |DEC EDX
+00403B5E  |.  74 15         |JE SHORT a.00403B75 ; 문자열 끝에 도달하였다면 루프 탈출
+00403B60  |.  8B4E 04       |MOV ECX,DWORD PTR DS:[ESI+4] 
+00403B63  |.  8B5F 04       |MOV EBX,DWORD PTR DS:[EDI+4]
+00403B66  |.  39D9          |CMP ECX,EBX
+00403B68  |.  75 4B         |JNZ SHORT a.00403BB5
+00403B6A  |.  83C6 08       |ADD ESI,8 
+00403B6D  |.  83C7 08       |ADD EDI,8
+00403B70  |.  4A            |DEC EDX
+00403B71  |.^ 75 E2         \JNZ SHORT a.00403B55 ; 반복하여 문자열을 비교한다. 
+00403B73  |.  EB 06         JMP SHORT a.00403B7B
+00403B75  |>  83C6 04       ADD ESI,4
+00403B78  |.  83C7 04       ADD EDI,4
+00403B7B  |>  5A            POP EDX
+00403B7C  |.  83E2 03       AND EDX,3
+00403B7F  |.  74 22         JE SHORT a.00403BA3
+00403B81  |.  8B0E          MOV ECX,DWORD PTR DS:[ESI]
+00403B83  |.  8B1F          MOV EBX,DWORD PTR DS:[EDI]
+00403B85  |.  38D9          CMP CL,BL
+00403B87  |.  75 41         JNZ SHORT a.00403BCA
+00403B89  |.  4A            DEC EDX
+00403B8A  |.  74 17         JE SHORT a.00403BA3
+00403B8C  |.  38FD          CMP CH,BH
+00403B8E  |.  75 3A         JNZ SHORT a.00403BCA
+00403B90  |.  4A            DEC EDX
+00403B91  |.  74 10         JE SHORT a.00403BA3
+00403B93  |.  81E3 0000FF00 AND EBX,0FF0000
+00403B99  |.  81E1 0000FF00 AND ECX,0FF0000
+00403B9F  |.  39D9          CMP ECX,EBX
+00403BA1  |.  75 27         JNZ SHORT a.00403BCA
+00403BA3  |>  01C0          ADD EAX,EAX
+00403BA5  |.  EB 23         JMP SHORT a.00403BCA
+00403BA7  |>  8B57 FC       MOV EDX,DWORD PTR DS:[EDI-4]
+00403BAA  |.  29D0          SUB EAX,EDX
+00403BAC  |.  EB 1C         JMP SHORT a.00403BCA
+00403BAE  |>  8B46 FC       MOV EAX,DWORD PTR DS:[ESI-4]
+00403BB1  |.  29D0          SUB EAX,EDX
+00403BB3  |.  EB 15         JMP SHORT a.00403BCA
+00403BB5  |>  5A            POP EDX
+00403BB6  |.  38D9          CMP CL,BL
+00403BB8  |.  75 10         JNZ SHORT a.00403BCA
+00403BBA  |.  38FD          CMP CH,BH
+00403BBC  |.  75 0C         JNZ SHORT a.00403BCA
+00403BBE  |.  C1E9 10       SHR ECX,10
+00403BC1  |.  C1EB 10       SHR EBX,10
+00403BC4  |.  38D9          CMP CL,BL
+00403BC6  |.  75 02         JNZ SHORT a.00403BCA
+00403BC8  |.  38FD          CMP CH,BH
+00403BCA  |>  5F            POP EDI
+00403BCB  |.  5E            POP ESI
+00403BCC  |.  5B            POP EBX
+00403BCD  \.  C3            RETN
+
+아무튼 자세한 내용은 생략하였지만 문자열을 비교하는 루틴이 틀림없이 맞는 것 같았다. 
+이 루틴에서 같음을 반환하게 되면 성공적으로 크랙하였다는 문자열이 출력되었다. 
+결과적으로 이 프로그램의 시리얼은 위 문자열 비교 함수의 하나의 인자로 들어갔던 GFX-754-IER-954
+가 틀림이 없다.
