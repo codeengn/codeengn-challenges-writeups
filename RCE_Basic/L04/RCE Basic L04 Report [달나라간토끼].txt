@@ -1,0 +1,49 @@
+0040102B     CC             INT3
+0040102C     CC             INT3
+0040102D     CC             INT3
+0040102E     CC             INT3
+0040102F     CC             INT3
+00401030   > 55             PUSH EBP
+00401031   . 8BEC           MOV EBP,ESP
+00401033   . 83EC 40        SUB ESP,40
+00401036   . 53             PUSH EBX
+00401037   . 56             PUSH ESI
+00401038   . 57             PUSH EDI
+00401039   . 8D7D C0        LEA EDI,DWORD PTR SS:[EBP-40]
+0040103C   . B9 10000000    MOV ECX,10
+00401041   . B8 CCCCCCCC    MOV EAX,CCCCCCCC
+00401046   . F3:AB          REP STOS DWORD PTR ES:[EDI]
+00401048   > 8BF4           MOV ESI,ESP
+0040104A   . 68 E8030000    PUSH 3E8                                 ; /Timeout = 1000. ms
+0040104F   . FF15 68B14300  CALL DWORD PTR DS:[<&KERNEL32.Sleep>]    ; \Sleep
+00401055   . 3BF4           CMP ESI,ESP
+00401057   . E8 B4710000    CALL AFA7AD21.00408210
+0040105C   . 8BF4           MOV ESI,ESP
+0040105E   . FF15 64B14300  CALL DWORD PTR DS:[<&KERNEL32.IsDebugger>; [IsDebuggerPresent
+00401064   . 3BF4           CMP ESI,ESP
+00401066   . E8 A5710000    CALL AFA7AD21.00408210
+0040106B   . 85C0           TEST EAX,EAX
+0040106D     74 0F          JE SHORT AFA7AD21.0040107E    <------------  초심자의 눈의로 봤을때 이부분에서 분기가 이루어지며 
+								         이부분을 jmp 시켜놓음으로 써 디버깅 당함을 우회할수있다.
+									 근데 아직 어떤부분이 정확히 디버깅여부를 판단하게 할수있는지를
+									 알아낼수가 없었다.
+									 ISDEBUGGERPRESENT
+                                                                         
+0040106F   . 68 24104300    PUSH AFA7AD21.00431024                   ; /디버깅 당함 \n
+00401074   . E8 17710000    CALL AFA7AD21.00408190                   ; \AFA7AD21.00408190
+00401079   . 83C4 04        ADD ESP,4
+0040107C   . EB 0D          JMP SHORT AFA7AD21.0040108B
+0040107E   > 68 1C104300    PUSH AFA7AD21.0043101C                   ; /정상 \n
+00401083   . E8 08710000    CALL AFA7AD21.00408190                   ; \AFA7AD21.00408190
+00401088   . 83C4 04        ADD ESP,4
+0040108B   >^EB BB          JMP SHORT AFA7AD21.00401048
+0040108D     CC             INT3
+0040108E     CC             INT3
+0040108F     CC             INT3
+00401090     CC             INT3
+00401091     CC             INT3
+00401092     CC             INT3
+00401093     CC             INT3
+00401094     CC             INT3
+00401095     CC             INT3
+
